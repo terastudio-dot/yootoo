@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YooToo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 90%;
+      background: white;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+    }
+
+    .converter {
+      margin-bottom: 2rem;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .status {
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    a.download {
+      display: none;
+      margin-top: 10px;
+      display: inline-block;
+      background: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      button, input[type="text"] {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>YooToo</h1>
+
+    <div class="converter">
+      <label for="url">YouTube Video URL (MP3)</label>
+      <input type="text" id="url" placeholder="https://youtu.be/..." />
+      <button id="btnMp3" onclick="convertMP3()">Convert to MP3</button>
+      <div id="statusMp3" class="status"></div>
+      <a id="download" class="download" download>Download MP3</a>
+    </div>
+
+    <div class="converter">
+      <label for="urlMp4">YouTube Video URL (MP4)</label>
+      <input type="text" id="urlMp4" placeholder="https://youtu.be/..." />
+      <button id="btnMp4" onclick="convertMP4()">Convert to MP4</button>
+      <div id="statusMp4" class="status"></div>
+      <a id="downloadMp4" class="download" download>Download MP4</a>
+    </div>
+  </div>
+
+  <script>
+    async function convertMP3() {
+      const url = document.getElementById("url").value;
+      const btn = document.getElementById("btnMp3");
+      const status = document.getElementById("statusMp3");
+      const link = document.getElementById("download");
+
+      btn.style.display = "none";
+      status.innerText = "Processing MP3...";
+      link.style.display = "none";
+
+      try {
+        const res = await fetch("/api/convert", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          status.innerText = "Success!";
+          link.href = data.downloadUrl;
+          link.style.display = "inline-block";
+        } else {
+          status.innerText = "Failed: " + data.message;
+        }
+      } catch (err) {
+        status.innerText = "Error: " + err.message;
+      } finally {
+        btn.style.display = "inline-block";
+      }
+    }
+
+    async function convertMP4() {
+      const url = document.getElementById("urlMp4").value;
+      const btn = document.getElementById("btnMp4");
+      const status = document.getElementById("statusMp4");
+      const link = document.getElementById("downloadMp4");
+
+      btn.style.display = "none";
+      status.innerText = "Processing MP4...";
+      link.style.display = "none";
+
+      try {
+        const res = await fetch("/api/convert-mp4", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          status.innerText = "Success!";
+          link.href = data.downloadUrl;
+          link.style.display = "inline-block";
+        } else {
+          status.innerText = "Failed: " + data.message;
+        }
+      } catch (err) {
+        status.innerText = "Error: " + err.message;
+      } finally {
+        btn.style.display = "inline-block";
+      }
+    }
+  </script>
+</body>
+</html>
